@@ -1,0 +1,187 @@
+" ホームディレクトリ
+let $HOME='C:/vim'
+
+"---------------------------------------------------------------------------
+" 文字コード
+set enc=utf-8
+set fenc=utf-8
+source $VIMRUNTIME/delmenu.vim
+set langmenu=ja_jp.utf-8
+source $VIMRUNTIME/menu.vim
+
+"---------------------------------------------------------------------------
+" 画面設定
+set columns=100
+set lines=50
+set cmdheight=2
+set guifont=HGGothicM:h16:b
+set guifontwide=HGGothicM:h16:b
+
+colorscheme evening
+set vb t_vb=
+
+"---------------------------------------------------------------------------
+"自動生成ファイルの無効化
+set noswapfile
+set nobackup
+set viminfo=
+set noundofile
+
+"---------------------------------------------------------------------------
+set autoindent
+set smartindent
+set tabstop=4
+set expandtab
+set shiftwidth=4
+set backspace=indent,eol,start
+set wrapscan
+set showmatch
+set wildmenu
+set formatoptions+=mM
+
+"---------------------------------------------------------------------------
+set number
+set ruler
+set nolist
+set listchars=tab:>-,extends:<,trail:-,eol:<
+set nowrap
+set laststatus=2
+set cmdheight=2
+set showcmd
+set title
+set scrolloff=2
+set cursorline
+"set virtualedit=onemore
+
+"---------------------------------------------------------------------------
+"キーマッピング
+noremap s <NOP>
+
+let mapleader="\<space>"
+nnoremap <leader>f /
+nnoremap <leader>e :q<cr>
+nnoremap <leader>s :set 
+nnoremap <leader>o :tabnew<cr>:e 
+"大文字小文字切り替え
+nnoremap <leader>u gUiw
+nnoremap <leader>l guiw
+
+
+"移動系
+noremap j gj
+noremap k gk
+noremap gj j
+noremap gk k
+noremap <C-j> 3j
+noremap <C-k> 3k
+noremap <C-h> ^
+noremap <C-l> $
+noremap <C-SPACE> *
+noremap <C-e> 2<C-e>
+noremap <C-y> 2<C-y>
+noremap <C-n> %
+noremap <cr> G
+noremap <backspace> gg
+
+"メモリー・ジャンプ
+noremap m mm
+noremap <leader>m 'm
+
+"クリップボード連携
+noremap gp "*p
+noremap gy "*y
+
+"画面分割
+noremap ss :split<CR>
+noremap sv :vsplit<CR>
+noremap sh <C-w>h
+noremap sl <C-w>l
+noremap sj <C-w>j
+noremap sk <C-w>k
+noremap s<SPACE> <C-w>w
+noremap s= <C-w>=
+noremap s> <C-w>8>
+noremap s< <C-w>8<
+
+"タブページ
+noremap st :tabnew<CR>
+noremap sn gt
+noremap sp gT
+noremap <F2> :tabnew ~/_gvimrc<cr>
+
+"検索ハイライトのトグル設定
+"let hlstate=0
+"noremap <C-h> :if (hlstate == 0) \| set nohlsearch \| else \| set hlsearch \| endif \| let hlstate=1-hlstate<CR>
+noremap <silent> <esc> <esc>:nohlsearch<CR>
+
+"括弧補完
+"inoremap ( ()<LEFT>
+"inoremap { {}<LEFT>
+"inoremap [ []<LEFT>
+"inoremap " ""<LEFT>
+"inoremap ' ''<LEFT>
+"inoremap () ()
+"inoremap {} {}
+"inoremap [] []
+"inoremap "" ""
+"inoremap '' ''
+inoremap {<CR> {}<LEFT><CR><ESC><S-o>
+
+vnoremap ( di()<ESC>P
+vnoremap <CR> y/<C-r>0<CR>
+
+autocmd QuickFixCmdPost *grep* cwindow
+"---------------------------------------------------------------------------
+"自作コマンド
+command! ReloadVimrc source ~/_gvimrc
+command! -nargs=1 RenameCurrentFile call rename(expand('%'), '<args>')
+
+autocmd filetype lisp noremap <C-F5> :w<cr>:!start clisp -i %<cr>
+autocmd BufNewFile,BufRead *.tsv  noremap <C-F5> :call ShowMap("\t")<cr>
+autocmd BufNewFile,BufRead *.tsv  noremap <leader>h :call ShowHeader("\t")<cr>
+autocmd BufNewFile,BufRead *.csv  noremap <C-F5> :call ShowMap(",")<cr>
+autocmd BufNewFile,BufRead *.csv  noremap <leader>h :call ShowHeader(",")<cr>
+
+"カーソル位置のカラムのヘッダーを表示する
+function! ShowHeader(delimiter)
+    
+    "デリミターの指定
+    let s:delimiter = a:delimiter
+
+    let s:strHeader = getline(1)
+    let s:strCurrentLine = getline(line('.'))
+    let s:headers = split(s:strHeader, s:delimiter)
+    let s:columns = split(s:strCurrentLine, s:delimiter)
+
+    "カーソル位置が何カラム目かを判別する
+    let s:strCurrentLineToCursor = strcharpart(s:strCurrentLine, 0, col('.'))
+    let s:nthColumn = len(split(s:strCurrentLineToCursor, s:delimiter)) - 1
+
+    echo s:headers[s:nthColumn]
+    return
+endfunction
+
+"ヘッダーとデータのマップを表示する
+function! ShowMap(delimiter)
+
+    "デリミターの指定
+    let s:delimiter = a:delimiter
+
+    let s:strHeader = getline(1)
+    let s:strCurrentLine = getline(line('.'))
+    let s:headers = split(s:strHeader, s:delimiter)
+    let s:columns = split(s:strCurrentLine, s:delimiter)
+
+    "ヘッダーとデータのカラム数が不一致の場合エラー
+    if len(s:headers) != len(s:columns)
+        echo "ヘッダーとデータのカラム数が一致しません"
+        return
+    endif
+
+    "カラム毎にヘッダーと値を表示
+    for n in range(0, len(s:headers) - 1)
+        echo s:headers[n] . ' => ' . s:columns[n]
+    endfor
+    
+    return
+endfunction

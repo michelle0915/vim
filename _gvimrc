@@ -1,187 +1,279 @@
-" ホームディレクトリ
-let $HOME='C:/vim'
+let $HOME='C:/Users/akamatsu-m/vim'
 
-"---------------------------------------------------------------------------
-" 文字コード
-set enc=utf-8
-set fenc=utf-8
+" テーマ
+" ホームディレクトリ
+colorscheme evening
+set encoding=utf-8
+set fileencodings=utf-8,cp932,sjis
+set guifont=HGGothicM:h11:b
+set guifontwide=HGGothicM:h11:b
 source $VIMRUNTIME/delmenu.vim
 set langmenu=ja_jp.utf-8
 source $VIMRUNTIME/menu.vim
 
-"---------------------------------------------------------------------------
-" 画面設定
+" ウインドウの幅
 set columns=100
+" ウインドウの高さ
 set lines=50
-set cmdheight=2
-set guifont=HGGothicM:h16:b
-set guifontwide=HGGothicM:h16:b
 
-colorscheme evening
-set vb t_vb=
-
-"---------------------------------------------------------------------------
-"自動生成ファイルの無効化
+" 自動生成ファイルを生成しない
 set noswapfile
 set nobackup
 set viminfo=
 set noundofile
+set hidden
 
-"---------------------------------------------------------------------------
-set autoindent
-set smartindent
-set tabstop=4
-set expandtab
-set shiftwidth=4
-set backspace=indent,eol,start
-set wrapscan
-set showmatch
-set wildmenu
-set formatoptions+=mM
-
-"---------------------------------------------------------------------------
+" ウィンドウ表示設定
 set number
-set ruler
-set nolist
-set listchars=tab:>-,extends:<,trail:-,eol:<
+set hlsearch
+set showtabline=3
+set noexpandtab
+set tabstop=4
+set shiftwidth=4
 set nowrap
-set laststatus=2
-set cmdheight=2
-set showcmd
-set title
-set scrolloff=2
 set cursorline
+set scrolloff=2
+set textwidth=0
 "set virtualedit=onemore
+set nolist
+set listchars=tab:>-,trail:-
 
-"---------------------------------------------------------------------------
-"キーマッピング
-noremap s <NOP>
+" 対応括弧のペアを追加
+set matchpairs+=<:>
+set matchpairs+=（:）
+set matchpairs+=【:】
 
+" ビープ音を消す
+set vb t_vb=
+
+" leader
 let mapleader="\<space>"
-nnoremap <leader>f /
-nnoremap <leader>e :q<cr>
 nnoremap <leader>s :set 
+nnoremap <leader>g :vimgrep  **/*<left><left><left><left><left>
+nnoremap <leader>l :ls<cr>
+nnoremap <leader>r :source ~/_gvimrc<cr>
+nnoremap <silent> <leader>e :q<cr>
+nnoremap <leader>w :w<cr>
 nnoremap <leader>o :tabnew<cr>:e 
-"大文字小文字切り替え
-nnoremap <leader>u gUiw
-nnoremap <leader>l guiw
+nnoremap <silent> <leader>j :call JumpToPairTag()<cr>
 
+nnoremap <silent> <f4>w :call ToggleSetting("wrap")<cr>
+nnoremap <silent> <f4>l :call ToggleSetting("list")<cr>
+nnoremap <silent> <f4>n :call ToggleSetting("number")<cr>
 
-"移動系
+noremap <f1> :help 
+" vimrcを開く
+noremap <f2> :tabnew<cr>:e $home/_gvimrc<cr>
+
+" 画面分割、タブ関連
+nnoremap s <nop>
+nnoremap sn gt
+nnoremap sp gT
+nnoremap sj <c-w>w
+
+" 基本操作キーマップ
+nnoremap <silent> <esc> <esc>:nohlsearch<cr>
+nmap <c-k> <esc>
+inoremap <c-k> <esc>
+vnoremap <c-k> <esc>
+noremap <c-z> <nop>
 noremap j gj
 noremap k gk
-noremap gj j
-noremap gk k
-noremap <C-j> 3j
-noremap <C-k> 3k
-noremap <C-h> ^
-noremap <C-l> $
-noremap <C-SPACE> *
-noremap <C-e> 2<C-e>
-noremap <C-y> 2<C-y>
-noremap <C-n> %
-noremap <cr> G
-noremap <backspace> gg
-
-"メモリー・ジャンプ
-noremap m mm
-noremap <leader>m 'm
-
-"クリップボード連携
-noremap gp "*p
+noremap <c-h> ^
+noremap <c-l> $
+noremap <c-j> 3j
+noremap <c-e> 2<c-e>
+noremap <c-y> 2<c-y>
+nnoremap <c-u> <c-r>
+noremap <c-n> %
 noremap gy "*y
+noremap gp "*p
+nnoremap v <c-v>
 
-"画面分割
-noremap ss :split<CR>
-noremap sv :vsplit<CR>
-noremap sh <C-w>h
-noremap sl <C-w>l
-noremap sj <C-w>j
-noremap sk <C-w>k
-noremap s<SPACE> <C-w>w
-noremap s= <C-w>=
-noremap s> <C-w>8>
-noremap s< <C-w>8<
+nnoremap gu gUiw
+nnoremap gl guiw
 
-"タブページ
-noremap st :tabnew<CR>
-noremap sn gt
-noremap sp gT
-noremap <F2> :tabnew ~/_gvimrc<cr>
+nnoremap <silent> <s-down> :call MoveLine("DOWN")<cr>
+nnoremap <silent> <s-up> :call MoveLine("UP")<cr>
 
-"検索ハイライトのトグル設定
-"let hlstate=0
-"noremap <C-h> :if (hlstate == 0) \| set nohlsearch \| else \| set hlsearch \| endif \| let hlstate=1-hlstate<CR>
-noremap <silent> <esc> <esc>:nohlsearch<CR>
+noremap <m-l> 3zl
 
-"括弧補完
-"inoremap ( ()<LEFT>
-"inoremap { {}<LEFT>
-"inoremap [ []<LEFT>
-"inoremap " ""<LEFT>
-"inoremap ' ''<LEFT>
-"inoremap () ()
-"inoremap {} {}
-"inoremap [] []
-"inoremap "" ""
-"inoremap '' ''
-inoremap {<CR> {}<LEFT><CR><ESC><S-o>
+" メモリ・ジャンプ
+nnoremap m mm
+nnoremap <leader>m 'm
 
-vnoremap ( di()<ESC>P
-vnoremap <CR> y/<C-r>0<CR>
+" マクロ
+noremap q <nop>
+noremap <f5> qa
+noremap <f6> q
+noremap <f8> @a
 
-autocmd QuickFixCmdPost *grep* cwindow
-"---------------------------------------------------------------------------
-"自作コマンド
-command! ReloadVimrc source ~/_gvimrc
-command! -nargs=1 RenameCurrentFile call rename(expand('%'), '<args>')
+" 入力中キーバインド
+inoremap <c-f> <right>
+inoremap <c-b> <left>
+inoremap <c-d> <del>
+inoremap <c-t> <c-v><tab>
+ 
+" 括弧入力補完
+inoremap ( ()<left>
+inoremap [ []<left>
+inoremap { {}<left>
+inoremap " ""<left>
+inoremap ' ''<left>
 
-autocmd filetype lisp noremap <C-F5> :w<cr>:!start clisp -i %<cr>
-autocmd BufNewFile,BufRead *.tsv  noremap <C-F5> :call ShowMap("\t")<cr>
-autocmd BufNewFile,BufRead *.tsv  noremap <leader>h :call ShowHeader("\t")<cr>
-autocmd BufNewFile,BufRead *.csv  noremap <C-F5> :call ShowMap(",")<cr>
-autocmd BufNewFile,BufRead *.csv  noremap <leader>h :call ShowHeader(",")<cr>
+inoremap {<cr> {}<left><cr><esc><s-o>
 
-"カーソル位置のカラムのヘッダーを表示する
-function! ShowHeader(delimiter)
-    
-    "デリミターの指定
-    let s:delimiter = a:delimiter
+vnoremap ( di(<c-r>")<esc>
+vnoremap { di{<c-r>"}<esc>
+vnoremap " di"<c-r>""<esc>
+vnoremap ' di'<c-r>"'<esc>
 
-    let s:strHeader = getline(1)
-    let s:strCurrentLine = getline(line('.'))
-    let s:headers = split(s:strHeader, s:delimiter)
-    let s:columns = split(s:strCurrentLine, s:delimiter)
+vnoremap <cr> y/<c-r>"<cr>
 
-    "カーソル位置が何カラム目かを判別する
-    let s:strCurrentLineToCursor = strcharpart(s:strCurrentLine, 0, col('.'))
-    let s:nthColumn = len(split(s:strCurrentLineToCursor, s:delimiter)) - 1
+" Quickfixフック
+autocmd QuickFixCmdPre vimgrep tabnew
+autocmd QuickFixCmdPost vimgrep cwindow
 
-    echo s:headers[s:nthColumn]
-    return
+" 自作コマンド読み込み
+:source ~/_mycommand.vim
+
+" netrw.vim設定
+let g:netrw_liststyle = 3
+let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+'
+let g:netrw_altv = 1
+let g:netrw_alto = 1
+
+noremap <F9> :tabnew<cr>:e .<cr>
+
+" ディレクトリ移動
+nnoremap <m-i> :call UpDirectory()<cr>
+nnoremap <m-u> :call BackToPrevDirectory()<cr>
+nnoremap <m-p> :pwd<cr>
+nnoremap <m-j> :cd 
+
+function! CreatePathHistory()
+	if !exists("w:pathHistory")
+		let w:pathHistory = []
+	endif
 endfunction
 
-"ヘッダーとデータのマップを表示する
-function! ShowMap(delimiter)
+function! PushPath()
+	call CreatePathHistory()
+	call add(w:pathHistory, getcwd())
+endfunction
 
-    "デリミターの指定
-    let s:delimiter = a:delimiter
+function! PopPath()
+	call CreatePathHistory()
+	let s:len = len(w:pathHistory)
+	if s:len > 0
+		return remove(w:pathHistory,  s:len - 1)
+	else
+		return -1
+	endif
+endfunction
 
-    let s:strHeader = getline(1)
-    let s:strCurrentLine = getline(line('.'))
-    let s:headers = split(s:strHeader, s:delimiter)
-    let s:columns = split(s:strCurrentLine, s:delimiter)
+function! UpDirectory()
+	call PushPath()
+	execute "lcd .."
+	execute "pwd"
+endfunction
 
-    "ヘッダーとデータのカラム数が不一致の場合エラー
-    if len(s:headers) != len(s:columns)
-        echo "ヘッダーとデータのカラム数が一致しません"
-        return
+function! BackToPrevDirectory()
+	let s:prev = PopPath()
+	if s:prev != -1
+		execute "lcd " . s:prev
+	endif
+	execute "pwd"
+endfunction
+
+" 最下ウィンドウにステータスバーを常に表示する
+set laststatus=2
+ 
+" ステータスバーの内容
+"set statusline=%1*
+set statusline =
+set statusline+=\ [%n]                                     " バッファ番号
+set statusline+=\ %<%t                                     " ファイル名
+set statusline+=%r%H%W%m                                   " ファイルステータス
+"set statusline+=\ [Type:%{strlen(&ft)?&ft:'unknown'}]      " ファイルタイプ
+set statusline+=\ [Enc/Fmt:%{strlen(&fenc)?&fenc:'unknown'}/%{GetFileFormat()}]   " ファイルエンコーディング/ファイルフォーマット( 改行コード )
+set statusline+=\ %{&bomb?'[BOM]':''}                      " BOM の有無
+set statusline+=%=                                         " 以下、右寄せで表示
+set statusline+=\ [Ascii:%03b/0x%02B]                             " ASCII コード ( 10進/16進 )
+"set statusline+=\ [Pos:%03v\ %l/%L]                        " カーソル位置の列 / 行、全行数
+set statusline+=\ [Line:%l/%L]                             " カーソル位置の列 / 行、全行数
+set statusline+=\                                          " パディング
+ 
+" ファイルフォーマットを改行コードに変換
+function! GetFileFormat()
+    if &ff == 'unix'
+        return 'LF'
+    elseif &ff == 'dos'
+        return 'CRLF'
+    elseif &ff == 'mac'
+        return 'CR'
+    else
+        return 'unknown'
     endif
+endfunction
 
-    "カラム毎にヘッダーと値を表示
-    for n in range(0, len(s:headers) - 1)
-        echo s:headers[n] . ' => ' . s:columns[n]
-    endfor
-    
-    return
+" オプションのON/OFF切替え
+function! ToggleSetting(op)
+	if eval("&" . a:op)
+		execute "set no" . a:op
+	else
+		execute "set " . a:op
+	endif
+endfunction
+
+" 対となる開始・終了タグに移動する
+function! JumpToPairTag()
+	" カーソル位置の括弧を含むタグ文字列を取得（マルチバイト文字も考慮して、以後扱う）
+	let s:tagstring = ""
+	let s:tmp = @@
+	execute "normal! va<y"
+	let s:tagstring = @@
+	let @@ = s:tmp
+
+	" 対のないタグの場合、なにもしない
+	if strcharpart(s:tagstring, strchars(s:tagstring) - 2) == '/>'
+		return
+	endif
+
+	" タグ名のみ取得
+	let s:tagname = strcharpart(s:tagstring, 1, strchars(s:tagstring) - 2)
+	" 属性値が設定されている場合
+	let s:spaceIndex = stridx(s:tagname, " ")
+	if (s:spaceIndex != -1)
+		let s:tagname = strpart(s:tagname, 0, s:spaceIndex)
+	endif
+
+	" 開始/終了タグに応じて下/上検索
+	if s:tagname[0] != '/'
+		let s:res = searchpair('<'.s:tagname.'.\{-}>', '', '</'.s:tagname.'>', 'W')
+	else
+		let s:tagname = s:tagname[1:]
+		let s:res = searchpair('<'.s:tagname.'.\{-}>', '', '</'.s:tagname.'>', 'bW')
+	endif
+
+endfunction
+
+" 25%/75%の位置に移動できる
+" 着地点を予測しにくいため、使い勝手がイマイチ
+function! ThreeQuarter(pos)
+	execute "normal! H"
+	let s:rowH = line('.')
+	execute "normal! L"
+	let s:rowL = line('.')
+	execute "normal! M"
+	let s:rowM = line('.')
+
+	let s:rowMH = ( s:rowH + s:rowM ) / 2
+	let s:rowML = ( s:rowL + s:rowM ) / 2
+
+	if a:pos == "h"
+		execute "normal! " . s:rowMH . "G"
+	else
+		execute "normal! " . s:rowML . "G"
+	endif
 endfunction

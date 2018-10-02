@@ -60,6 +60,7 @@ nnoremap <silent> <leader>j :call JumpToPairTag()<cr>
 nnoremap <silent> <f4>w :call ToggleSetting("wrap")<cr>
 nnoremap <silent> <f4>l :call ToggleSetting("list")<cr>
 nnoremap <silent> <f4>n :call ToggleSetting("number")<cr>
+nnoremap <silent> <f4>t :call ToggleSetting("expandtab")<cr>
 
 noremap <f1> :help 
 " vimrcを開く
@@ -81,10 +82,10 @@ noremap j gj
 noremap k gk
 noremap <c-h> ^
 noremap <c-l> $
-noremap <c-j> 3j
 noremap <c-e> 2<c-e>
 noremap <c-y> 2<c-y>
 nnoremap <c-u> <c-r>
+noremap <c-j> *
 noremap <c-n> %
 noremap gy "*y
 noremap gp "*p
@@ -221,8 +222,10 @@ endfunction
 function! ToggleSetting(op)
 	if eval("&" . a:op)
 		execute "set no" . a:op
+		echo "set no" . a:op
 	else
 		execute "set " . a:op
+		echo "set " . a:op
 	endif
 endfunction
 

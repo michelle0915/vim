@@ -5,8 +5,8 @@ let $HOME='C:/Users/akamatsu-m/vim'
 colorscheme evening
 set encoding=utf-8
 set fileencodings=utf-8,cp932,sjis
-set guifont=HGGothicM:h11:b
-set guifontwide=HGGothicM:h11:b
+set guifont=HGGothicM:h12:b
+set guifontwide=HGGothicM:h12:b
 source $VIMRUNTIME/delmenu.vim
 set langmenu=ja_jp.utf-8
 source $VIMRUNTIME/menu.vim
@@ -74,9 +74,6 @@ nnoremap sj <c-w>w
 
 " 基本操作キーマップ
 nnoremap <silent> <esc> <esc>:nohlsearch<cr>
-nmap <c-k> <esc>
-inoremap <c-k> <esc>
-vnoremap <c-k> <esc>
 noremap <c-z> <nop>
 noremap j gj
 noremap k gk
@@ -85,11 +82,11 @@ noremap <c-l> $
 noremap <c-e> 2<c-e>
 noremap <c-y> 2<c-y>
 nnoremap <c-u> <c-r>
-noremap <c-j> *
+noremap <c-j> /
+noremap <c-k> *
 noremap <c-n> %
 noremap gy "*y
 noremap gp "*p
-nnoremap v <c-v>
 
 nnoremap gu gUiw
 nnoremap gl guiw
@@ -97,7 +94,10 @@ nnoremap gl guiw
 nnoremap <silent> <s-down> :call MoveLine("DOWN")<cr>
 nnoremap <silent> <s-up> :call MoveLine("UP")<cr>
 
-noremap <m-l> 3zl
+noremap <c-up> <c-b>
+noremap <c-down> <c-f>
+noremap <c-right> 3zl
+noremap <c-left> 3zh
 
 " メモリ・ジャンプ
 nnoremap m mm
@@ -125,6 +125,7 @@ inoremap ' ''<left>
 inoremap {<cr> {}<left><cr><esc><s-o>
 
 vnoremap ( di(<c-r>")<esc>
+vnoremap [ di(<c-r>"]<esc>
 vnoremap { di{<c-r>"}<esc>
 vnoremap " di"<c-r>""<esc>
 vnoremap ' di'<c-r>"'<esc>

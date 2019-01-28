@@ -125,7 +125,7 @@ inoremap ' ''<left>
 inoremap {<cr> {}<left><cr><esc><s-o>
 
 vnoremap ( di(<c-r>")<esc>
-vnoremap [ di(<c-r>"]<esc>
+vnoremap [ di[<c-r>"]<esc>
 vnoremap { di{<c-r>"}<esc>
 vnoremap " di"<c-r>""<esc>
 vnoremap ' di'<c-r>"'<esc>

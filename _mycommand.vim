@@ -4,7 +4,7 @@
 :command! -nargs=+ CreateTag :call CreateTag(<f-args>) 
 :command! Ascii2Native :call Ascii2Native()
 :autocmd FileType perl command! AddBreakPoint :call AddBreakPoint()
-:autocmd FileType lisp noremap <C-F5> :!start clisp -i %<CR>
+:autocmd FileType lisp noremap <C-F5> :w!<CR>:!start clisp -i %<CR>
 :autocmd FileType php noremap <C-F5> :!start php %<CR>
 :autocmd FileType php inoremap <C-CR> ."\n";
 :autocmd BufNewFile,BufRead *.tsv  noremap <C-F5> :call ShowMap("\t")<cr>

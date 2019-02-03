@@ -1,4 +1,4 @@
-let $HOME='C:/Users/akamatsu-m/vim'
+let $HOME='C:/vim'
 
 " テーマ
 " ホームディレクトリ
@@ -27,7 +27,7 @@ set hidden
 set number
 set hlsearch
 set showtabline=3
-set noexpandtab
+set expandtab
 set tabstop=4
 set shiftwidth=4
 set nowrap
@@ -57,10 +57,11 @@ nnoremap <leader>w :w<cr>
 nnoremap <leader>o :tabnew<cr>:e 
 nnoremap <silent> <leader>j :call JumpToPairTag()<cr>
 
-nnoremap <silent> <f4>w :call ToggleSetting("wrap")<cr>
-nnoremap <silent> <f4>l :call ToggleSetting("list")<cr>
-nnoremap <silent> <f4>n :call ToggleSetting("number")<cr>
-nnoremap <silent> <f4>t :call ToggleSetting("expandtab")<cr>
+noremap , <nop>
+nnoremap <silent> ,w :call ToggleSetting("wrap")<cr>
+nnoremap <silent> ,l :call ToggleSetting("list")<cr>
+nnoremap <silent> ,n :call ToggleSetting("number")<cr>
+nnoremap <silent> ,t :call ToggleSetting("expandtab")<cr>
 
 noremap <f1> :help 
 " vimrcを開く
@@ -83,7 +84,7 @@ noremap <c-e> 2<c-e>
 noremap <c-y> 2<c-y>
 nnoremap <c-u> <c-r>
 noremap <c-j> /
-noremap <c-k> *
+noremap <silent> <c-k> "zyiw:let @/ = '\<' . @z . '\>'<cr>
 noremap <c-n> %
 noremap gy "*y
 noremap gp "*p
@@ -124,11 +125,11 @@ inoremap ' ''<left>
 
 inoremap {<cr> {}<left><cr><esc><s-o>
 
-vnoremap ( di(<c-r>")<esc>
-vnoremap [ di[<c-r>"]<esc>
-vnoremap { di{<c-r>"}<esc>
-vnoremap " di"<c-r>""<esc>
-vnoremap ' di'<c-r>"'<esc>
+vnoremap (  <esc>:call Wrap("(", ")")<cr>
+vnoremap [  <esc>:call Wrap("[", "]")<cr>
+vnoremap {  <esc>:call Wrap("{", "}")<cr>
+vnoremap "  <esc>:call Wrap("\"", "\"")<cr>
+vnoremap '  <esc>:call Wrap("\'", "\'")<cr>
 
 vnoremap <cr> y/<c-r>"<cr>
 
@@ -154,38 +155,38 @@ nnoremap <m-p> :pwd<cr>
 nnoremap <m-j> :cd 
 
 function! CreatePathHistory()
-	if !exists("w:pathHistory")
-		let w:pathHistory = []
-	endif
+    if !exists("w:pathHistory")
+        let w:pathHistory = []
+    endif
 endfunction
 
 function! PushPath()
-	call CreatePathHistory()
-	call add(w:pathHistory, getcwd())
+    call CreatePathHistory()
+    call add(w:pathHistory, getcwd())
 endfunction
 
 function! PopPath()
-	call CreatePathHistory()
-	let s:len = len(w:pathHistory)
-	if s:len > 0
-		return remove(w:pathHistory,  s:len - 1)
-	else
-		return -1
-	endif
+    call CreatePathHistory()
+    let s:len = len(w:pathHistory)
+    if s:len > 0
+        return remove(w:pathHistory,  s:len - 1)
+    else
+        return -1
+    endif
 endfunction
 
 function! UpDirectory()
-	call PushPath()
-	execute "lcd .."
-	execute "pwd"
+    call PushPath()
+    execute "lcd .."
+    execute "pwd"
 endfunction
 
 function! BackToPrevDirectory()
-	let s:prev = PopPath()
-	if s:prev != -1
-		execute "lcd " . s:prev
-	endif
-	execute "pwd"
+    let s:prev = PopPath()
+    if s:prev != -1
+        execute "lcd " . s:prev
+    endif
+    execute "pwd"
 endfunction
 
 " 最下ウィンドウにステータスバーを常に表示する
@@ -221,63 +222,145 @@ endfunction
 
 " オプションのON/OFF切替え
 function! ToggleSetting(op)
-	if eval("&" . a:op)
-		execute "set no" . a:op
-		echo "set no" . a:op
-	else
-		execute "set " . a:op
-		echo "set " . a:op
-	endif
+    if eval("&" . a:op)
+        execute "set no" . a:op
+        echo "set no" . a:op
+    else
+        execute "set " . a:op
+        echo "set " . a:op
+    endif
 endfunction
 
 " 対となる開始・終了タグに移動する
 function! JumpToPairTag()
-	" カーソル位置の括弧を含むタグ文字列を取得（マルチバイト文字も考慮して、以後扱う）
-	let s:tagstring = ""
-	let s:tmp = @@
-	execute "normal! va<y"
-	let s:tagstring = @@
-	let @@ = s:tmp
+    " カーソル位置の括弧を含むタグ文字列を取得（マルチバイト文字も考慮して、以後扱う）
+    execute "normal! va<\<esc>"
+    let s:tagstring = GetSelectedString()
 
-	" 対のないタグの場合、なにもしない
-	if strcharpart(s:tagstring, strchars(s:tagstring) - 2) == '/>'
-		return
-	endif
+    " 対のないタグの場合、なにもしない
+    if strcharpart(s:tagstring, strchars(s:tagstring) - 2) == '/>'
+        return
+    endif
 
-	" タグ名のみ取得
-	let s:tagname = strcharpart(s:tagstring, 1, strchars(s:tagstring) - 2)
-	" 属性値が設定されている場合
-	let s:spaceIndex = stridx(s:tagname, " ")
-	if (s:spaceIndex != -1)
-		let s:tagname = strpart(s:tagname, 0, s:spaceIndex)
-	endif
+    " タグ名のみ取得
+    let s:tagname = strcharpart(s:tagstring, 1, strchars(s:tagstring) - 2)
+    " 属性値が設定されている場合
+    let s:spaceIndex = stridx(s:tagname, " ")
+    if (s:spaceIndex != -1)
+        let s:tagname = strpart(s:tagname, 0, s:spaceIndex)
+    endif
 
-	" 開始/終了タグに応じて下/上検索
-	if s:tagname[0] != '/'
-		let s:res = searchpair('<'.s:tagname.'.\{-}>', '', '</'.s:tagname.'>', 'W')
-	else
-		let s:tagname = s:tagname[1:]
-		let s:res = searchpair('<'.s:tagname.'.\{-}>', '', '</'.s:tagname.'>', 'bW')
-	endif
+    " 開始/終了タグに応じて下/上検索
+    if s:tagname[0] != '/'
+        let s:res = searchpair('<'.s:tagname.'.\{-}>', '', '</'.s:tagname.'>', 'W')
+    else
+        let s:tagname = s:tagname[1:]
+        let s:res = searchpair('<'.s:tagname.'.\{-}>', '', '</'.s:tagname.'>', 'bW')
+    endif
 
 endfunction
 
 " 25%/75%の位置に移動できる
 " 着地点を予測しにくいため、使い勝手がイマイチ
 function! ThreeQuarter(pos)
-	execute "normal! H"
-	let s:rowH = line('.')
-	execute "normal! L"
-	let s:rowL = line('.')
-	execute "normal! M"
-	let s:rowM = line('.')
+    execute "normal! H"
+    let s:rowH = line('.')
+    execute "normal! L"
+    let s:rowL = line('.')
+    execute "normal! M"
+    let s:rowM = line('.')
 
-	let s:rowMH = ( s:rowH + s:rowM ) / 2
-	let s:rowML = ( s:rowL + s:rowM ) / 2
+    let s:rowMH = ( s:rowH + s:rowM ) / 2
+    let s:rowML = ( s:rowL + s:rowM ) / 2
 
-	if a:pos == "h"
-		execute "normal! " . s:rowMH . "G"
-	else
-		execute "normal! " . s:rowML . "G"
-	endif
+    if a:pos == "h"
+        execute "normal! " . s:rowMH . "G"
+    else
+        execute "normal! " . s:rowML . "G"
+    endif
+endfunction
+
+" 選択範囲の文字列を取得
+function! GetSelectedString()
+
+    let s:ret = ""
+    let s:tmp = @@
+    execute "normal! gvy"
+    let s:ret = @@
+    let @@ = s:tmp
+
+    return s:ret
+endfunction
+
+" 指定の文字で選択範囲を囲む
+function! Wrap(pre, sur)
+    let s:tmp = @@
+
+    execute "normal! gvc" . a:pre . "\<c-r>\"" . a:sur . "\<esc>"
+
+    let @@ = s:tmp
+endfunction
+
+" コメントアウト
+function! CommentOut(commentString)
+    execute "normal! 0i" . a:commentString . "\<esc>"
+endfunction
+
+" コメントアウト解除
+function! UnCommentOut(commentString)
+    let s:tmp = @@
+
+    let s:line = getline('.')
+    if match(s:line, '^\s*'.a:commentString) == -1
+        return
+    endif
+    execute "normal! ^" . repeat("x", len(a:commentString))
+
+    let @@ = s:tmp
+endfunction
+
+" 複数行コメントアウト/解除
+function! CommentOutMultiLine(commentString)
+    call MultiLineCall('CommentOut', [a:commentString])
+endfunction
+
+function! UnCommentOutMultiLine(commentString)
+    call MultiLineCall('UnCommentOut', [a:commentString])
+endfunction
+
+let filetypeCommentStr = ""
+augroup fileTypeComment
+    autocmd!
+    autocmd BufNewFile,BufRead *.vim,*vimrc let filetypeCommentStr = '"'
+    autocmd BufNewFile,BufRead *.lisp let filetypeCommentStr = ';'
+    autocmd BufNewFile,BufRead *.c,*.cpp let filetypeCommentStr = '//'
+    autocmd BufNewFile,BufRead *.js let filetypeCommentStr = '//'
+    autocmd BufNewFile,BufRead *.java let filetypeCommentStr = '//'
+    autocmd BufNewFile,BufRead *.php let filetypeCommentStr = '//'
+    autocmd BufNewFile,BufRead *.pl let filetypeCommentStr = '#'
+    autocmd BufNewFile,BufRead *.py let filetypeCommentStr = '#'
+augroup END
+
+nnoremap <silent> - :call CommentOut(filetypeCommentStr)<cr>
+nnoremap <silent> + :call UnCommentOut(filetypeCommentStr)<cr>
+vnoremap <silent> - <esc>:call CommentOutMultiLine(filetypeCommentStr)<cr>gv
+vnoremap <silent> + <esc>:call UnCommentOutMultiLine(filetypeCommentStr)<cr>gv
+
+" 複数行にわたる関数実行
+function! MultiLineCall(funcName, args)
+    execute "normal! `<"
+    let s:startLine = line('.')
+    execute "normal! `>"
+    let s:endLine = line('.')
+
+    let s:fn = function(a:funcName, a:args)
+
+    for eachLine in range(s:startLine, s:endLine)
+        execute "normal! " . eachLine . "G"
+        call s:fn()
+    endfor
+endfunction
+
+function! Hello()
+    echo "hello"
 endfunction

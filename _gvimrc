@@ -1,5 +1,5 @@
 " ホームディレクトリ
-let $HOME='C:/Users/akamatsu-m/vim'
+let $HOME='C:/vim'
 
 " テーマ
 colorscheme evening
@@ -102,10 +102,6 @@ noremap <c-up> <c-b>
 noremap <c-down> <c-f>
 noremap <c-right> 3zl
 noremap <c-left> 3zh
-
-" メモリ・ジャンプ
-nnoremap m mm
-nnoremap <leader>m 'm
 
 " マクロ
 noremap q <nop>
@@ -463,13 +459,36 @@ function! MultiLineCall(funcName, args)
 endfunction
 
 function! ReplClient(string)
-    if !exists("g:ch") || ch_status(g:ch) != "open"
-        let g:ch = ch_open("localhost:9000", {"mode": "raw", "callback": "Handler"})
+    if !exists("w:ch") || ch_status(w:ch) != "open"
+        let w:ch = ch_open("localhost:9000", {"mode": "raw", "callback": "Handler"})
     endif
-    call ch_sendraw(g:ch, a:string)
+
+    execute "normal! \<c-w>wG"
+    execute "normal! oIN>>> " . a:string . "\<esc>k$=%"
+
+    execute "normal! \<c-w>w"
+    call ch_sendraw(w:ch, a:string)
 endfunction
 
 function! Handler(channel, msg)
-    echo a:msg
-    call ch_close(g:ch)
-endfunc
+    execute "normal! \<c-w>wG"
+    execute "normal! oOUT>>> " . a:msg . "\<esc>=%"
+
+    execute "normal! \<c-w>w"
+    call ch_close(w:ch)
+endfunction
+
+:autocmd FileType lisp noremap <C-F5> :!start clisp -i C:\vim\server.lisp<CR>:new repl.lisp<CR><C-W>x
+:autocmd FileType lisp nnoremap <silent> <C-F5> :call StartRepl()<cr>
+:autocmd FileType lisp nnoremap <silent> <c-cr> V<esc>:call Repl()<cr>
+:autocmd FileType lisp vnoremap <silent> <c-cr> <esc>`<V`><esc>:call Repl()<cr>
+
+function! Repl()
+    call ReplClient(GetSelectedString())
+endfunction
+
+function! StartRepl()
+    execute '!start clisp -i C:\vim\server.lisp'
+    execute "vnew repl.lisp"
+    execute "normal! \<c-w>x"
+endfunction

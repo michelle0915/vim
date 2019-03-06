@@ -1,7 +1,7 @@
-let $HOME='C:/vim'
+" ホームディレクトリ
+let $HOME='C:/Users/akamatsu-m/vim'
 
 " テーマ
-" ホームディレクトリ
 colorscheme evening
 set encoding=utf-8
 set fileencodings=utf-8,cp932,sjis
@@ -84,7 +84,8 @@ noremap <c-e> 2<c-e>
 noremap <c-y> 2<c-y>
 nnoremap <c-u> <c-r>
 noremap <c-j> /
-noremap <silent> <c-k> "zyiw:let @/ = '\<' . @z . '\>'<cr>
+"noremap <silent> <c-k> "zyiw:let @/ = '\<' . @z . '\>'<cr>:set hlsearch<cr>
+noremap <silent> <c-k> :call Highlight()<cr>:set hlsearch<cr>
 noremap <c-n> %
 noremap gy "*y
 noremap gp "*p
@@ -94,6 +95,8 @@ nnoremap gl guiw
 
 nnoremap <silent> <s-down> :call MoveLine("DOWN")<cr>
 nnoremap <silent> <s-up> :call MoveLine("UP")<cr>
+vnoremap <silent> <s-down> <esc>:call MoveMultiLine("DOWN")<cr>
+vnoremap <silent> <s-up> <esc>:call MoveMultiLine("UP")<cr>
 
 noremap <c-up> <c-b>
 noremap <c-down> <c-f>
@@ -167,9 +170,9 @@ endfunction
 
 function! PopPath()
     call CreatePathHistory()
-    let s:len = len(w:pathHistory)
-    if s:len > 0
-        return remove(w:pathHistory,  s:len - 1)
+    let len = len(w:pathHistory)
+    if len > 0
+        return remove(w:pathHistory,  len - 1)
     else
         return -1
     endif
@@ -182,9 +185,9 @@ function! UpDirectory()
 endfunction
 
 function! BackToPrevDirectory()
-    let s:prev = PopPath()
-    if s:prev != -1
-        execute "lcd " . s:prev
+    let prev = PopPath()
+    if prev != -1
+        execute "lcd " . prev
     endif
     execute "pwd"
 endfunction
@@ -204,7 +207,7 @@ set statusline+=\ %{&bomb?'[BOM]':''}                      " BOM の有無
 set statusline+=%=                                         " 以下、右寄せで表示
 set statusline+=\ [Ascii:%03b/0x%02B]                             " ASCII コード ( 10進/16進 )
 "set statusline+=\ [Pos:%03v\ %l/%L]                        " カーソル位置の列 / 行、全行数
-set statusline+=\ [Line:%l/%L]                             " カーソル位置の列 / 行、全行数
+set statusline+=\ [Line:%l/%L\ Col:%c]                             " カーソル位置の列 / 行、全行数
 set statusline+=\                                          " パディング
  
 " ファイルフォーマットを改行コードに変換
@@ -235,27 +238,27 @@ endfunction
 function! JumpToPairTag()
     " カーソル位置の括弧を含むタグ文字列を取得（マルチバイト文字も考慮して、以後扱う）
     execute "normal! va<\<esc>"
-    let s:tagstring = GetSelectedString()
+    let tagstring = GetSelectedString()
 
     " 対のないタグの場合、なにもしない
-    if strcharpart(s:tagstring, strchars(s:tagstring) - 2) == '/>'
+    if strcharpart(tagstring, strchars(tagstring) - 2) == '/>'
         return
     endif
 
     " タグ名のみ取得
-    let s:tagname = strcharpart(s:tagstring, 1, strchars(s:tagstring) - 2)
+    let tagname = strcharpart(tagstring, 1, strchars(tagstring) - 2)
     " 属性値が設定されている場合
-    let s:spaceIndex = stridx(s:tagname, " ")
-    if (s:spaceIndex != -1)
-        let s:tagname = strpart(s:tagname, 0, s:spaceIndex)
+    let spaceIndex = stridx(tagname, " ")
+    if (spaceIndex != -1)
+        let tagname = strpart(tagname, 0, spaceIndex)
     endif
 
     " 開始/終了タグに応じて下/上検索
-    if s:tagname[0] != '/'
-        let s:res = searchpair('<'.s:tagname.'.\{-}>', '', '</'.s:tagname.'>', 'W')
+    if tagname[0] != '/'
+        let res = searchpair('<'.tagname.'.\{-}>', '', '</'.tagname.'>', 'W')
     else
-        let s:tagname = s:tagname[1:]
-        let s:res = searchpair('<'.s:tagname.'.\{-}>', '', '</'.s:tagname.'>', 'bW')
+        let tagname = tagname[1:]
+        let res = searchpair('<'.tagname.'.\{-}>', '', '</'.tagname.'>', 'bW')
     endif
 
 endfunction
@@ -264,41 +267,53 @@ endfunction
 " 着地点を予測しにくいため、使い勝手がイマイチ
 function! ThreeQuarter(pos)
     execute "normal! H"
-    let s:rowH = line('.')
+    let rowH = line('.')
     execute "normal! L"
-    let s:rowL = line('.')
+    let rowL = line('.')
     execute "normal! M"
-    let s:rowM = line('.')
+    let rowM = line('.')
 
-    let s:rowMH = ( s:rowH + s:rowM ) / 2
-    let s:rowML = ( s:rowL + s:rowM ) / 2
+    let rowMH = ( rowH + rowM ) / 2
+    let rowML = ( rowL + rowM ) / 2
 
     if a:pos == "h"
-        execute "normal! " . s:rowMH . "G"
+        execute "normal! " . rowMH . "G"
     else
-        execute "normal! " . s:rowML . "G"
+        execute "normal! " . rowML . "G"
     endif
 endfunction
 
 " 選択範囲の文字列を取得
 function! GetSelectedString()
 
-    let s:ret = ""
-    let s:tmp = @@
+    let ret = ""
+    let tmp = @@
     execute "normal! gvy"
-    let s:ret = @@
-    let @@ = s:tmp
+    let ret = @@
+    let @@ = tmp
 
-    return s:ret
+    return ret
 endfunction
 
 " 指定の文字で選択範囲を囲む
 function! Wrap(pre, sur)
-    let s:tmp = @@
+    let tmp = @@
 
     execute "normal! gvc" . a:pre . "\<c-r>\"" . a:sur . "\<esc>"
 
-    let @@ = s:tmp
+    let @@ = tmp
+endfunction
+
+" カーソル位置の単語をハイライト（*の移動しない版）
+function! Highlight()
+    let tmp = @@
+
+    execute "normal! viwy"
+    let @/ = '\<' . @@ . '\>'
+"    なぜか反応しない、呼び出し元で実行（妥協）
+"    set hlsearch
+
+    let @@ = tmp
 endfunction
 
 " コメントアウト
@@ -308,15 +323,15 @@ endfunction
 
 " コメントアウト解除
 function! UnCommentOut(commentString)
-    let s:tmp = @@
+    let tmp = @@
 
-    let s:line = getline('.')
-    if match(s:line, '^\s*'.a:commentString) == -1
+    let line = getline('.')
+    if match(line, '^\s*'.a:commentString) == -1
         return
     endif
     execute "normal! ^" . repeat("x", len(a:commentString))
 
-    let @@ = s:tmp
+    let @@ = tmp
 endfunction
 
 " 複数行コメントアウト/解除
@@ -328,39 +343,130 @@ function! UnCommentOutMultiLine(commentString)
     call MultiLineCall('UnCommentOut', [a:commentString])
 endfunction
 
-let filetypeCommentStr = ""
-augroup fileTypeComment
-    autocmd!
-    autocmd BufNewFile,BufRead *.vim,*vimrc let filetypeCommentStr = '"'
-    autocmd BufNewFile,BufRead *.lisp let filetypeCommentStr = ';'
-    autocmd BufNewFile,BufRead *.c,*.cpp let filetypeCommentStr = '//'
-    autocmd BufNewFile,BufRead *.js let filetypeCommentStr = '//'
-    autocmd BufNewFile,BufRead *.java let filetypeCommentStr = '//'
-    autocmd BufNewFile,BufRead *.php let filetypeCommentStr = '//'
-    autocmd BufNewFile,BufRead *.pl let filetypeCommentStr = '#'
-    autocmd BufNewFile,BufRead *.py let filetypeCommentStr = '#'
-augroup END
+function! FiletypeCommentStr()
+    if &ft == 'vim'
+        return '"'
+    elseif &ft == 'lisp'
+        return ';'
+    elseif &ft == 'c' || &ft == 'java' || &ft == 'javascript' || &ft == 'php'
+        return '//'
+    elseif &ft == 'perl' || &ft == 'python'
+        return '#'
+    endif
+endfunction
 
-nnoremap <silent> - :call CommentOut(filetypeCommentStr)<cr>
-nnoremap <silent> + :call UnCommentOut(filetypeCommentStr)<cr>
-vnoremap <silent> - <esc>:call CommentOutMultiLine(filetypeCommentStr)<cr>gv
-vnoremap <silent> + <esc>:call UnCommentOutMultiLine(filetypeCommentStr)<cr>gv
+"let filetypeCommentStr = ""
+"augroup fileTypeComment
+"    autocmd!
+"    autocmd BufNewFile,BufRead *.vim,*vimrc let filetypeCommentStr = '"'
+"    autocmd BufNewFile,BufRead *.lisp let filetypeCommentStr = ';'
+"    autocmd BufNewFile,BufRead *.c,*.cpp let filetypeCommentStr = '//'
+"    autocmd BufNewFile,BufRead *.js let filetypeCommentStr = '//'
+"    autocmd BufNewFile,BufRead *.java let filetypeCommentStr = '//'
+"    autocmd BufNewFile,BufRead *.php let filetypeCommentStr = '//'
+"    autocmd BufNewFile,BufRead *.pl let filetypeCommentStr = '#'
+"    autocmd BufNewFile,BufRead *.py let filetypeCommentStr = '#'
+"augroup END
+
+nnoremap <silent> - :call CommentOut(FiletypeCommentStr())<cr>
+nnoremap <silent> + :call UnCommentOut(FiletypeCommentStr())<cr>
+vnoremap <silent> - <esc>:call CommentOutMultiLine(FiletypeCommentStr())<cr>gv
+vnoremap <silent> + <esc>:call UnCommentOutMultiLine(FiletypeCommentStr())<cr>gv
+
+" 行移動
+function! MoveLine(direction)
+    let tmp = @@
+
+    let currentLine = line(".")
+    let minLine = 1
+    let maxLine = line("$")
+
+    "下移動
+    if a:direction == "DOWN"
+        if currentLine == maxLine
+            "最下行の場合、下に新たに空行を追加して移動
+            execute "normal! ddo\<ESC>p"
+        else
+            execute "normal! ddp"
+        endif
+
+    "上移動
+    elseif a:direction == "UP"
+        if currentLine == minLine
+            "最上行の場合、何もしない
+            return
+        elseif currentLine == maxLine
+            "最下行の場合、カーソル行が上にずれるため、kが必要無い
+            execute "normal! ddP"
+        else
+            execute "normal! ddkP"
+        endif
+    endif
+
+    let @@ = tmp
+endfunction
+
+" 複数行移動
+function! MoveMultiLine(direction)
+    let tmp = @@
+
+    let minLine = 1
+    let maxLine = line("$")
+
+    execute "normal! `<"
+    let topLine = line('.')
+    execute "normal! `>"
+    let bottomLine = line('.')
+
+    "下移動
+    if a:direction == "DOWN"
+        if bottomLine == maxLine
+            "最下行の場合、下に新たに空行を追加して移動
+            execute "normal! `<V`>do\<ESC>p`[V`]"
+        else
+            execute "normal! `<V`>dp`[V`]"
+        endif
+
+    "上移動
+    elseif a:direction == "UP"
+        if topLine == minLine
+            "最上行の場合、何もしない
+            execute "normal! `<V`>"
+            return
+        elseif bottomLine == maxLine
+            "最下行の場合、カーソル行が上にずれるため、kが必要無い
+            execute "normal! `<V`>dP`[V`]"
+        else
+            execute "normal! `<V`>dkP`[V`]"
+        endif
+    endif
+
+    let @@ = tmp
+endfunction
 
 " 複数行にわたる関数実行
 function! MultiLineCall(funcName, args)
     execute "normal! `<"
-    let s:startLine = line('.')
+    let startLine = line('.')
     execute "normal! `>"
-    let s:endLine = line('.')
+    let endLine = line('.')
 
-    let s:fn = function(a:funcName, a:args)
+    let Fn = function(a:funcName, a:args)
 
-    for eachLine in range(s:startLine, s:endLine)
+    for eachLine in range(startLine, endLine)
         execute "normal! " . eachLine . "G"
-        call s:fn()
+        call Fn()
     endfor
 endfunction
 
-function! Hello()
-    echo "hello"
+function! ReplClient(string)
+    if !exists("g:ch") || ch_status(g:ch) != "open"
+        let g:ch = ch_open("localhost:9000", {"mode": "raw", "callback": "Handler"})
+    endif
+    call ch_sendraw(g:ch, a:string)
 endfunction
+
+function! Handler(channel, msg)
+    echo a:msg
+    call ch_close(g:ch)
+endfunc

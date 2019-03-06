@@ -128,11 +128,14 @@ inoremap ' ''<left>
 
 inoremap {<cr> {}<left><cr><esc><s-o>
 
-vnoremap (  <esc>:call Wrap("(", ")")<cr>
-vnoremap [  <esc>:call Wrap("[", "]")<cr>
-vnoremap {  <esc>:call Wrap("{", "}")<cr>
-vnoremap "  <esc>:call Wrap("\"", "\"")<cr>
-vnoremap '  <esc>:call Wrap("\'", "\'")<cr>
+vnoremap ( <esc>:call Wrap("(", ")")<cr>
+vnoremap [ <esc>:call Wrap("[", "]")<cr>
+vnoremap { <esc>:call Wrap("{", "}")<cr>
+vnoremap < <esc>:call Wrap("<", ">")<cr>
+vnoremap " <esc>:call Wrap("\"", "\"")<cr>
+vnoremap ' <esc>:call Wrap("\'", "\'")<cr>
+vnoremap g( <esc>:call Wrap("（", "）")<cr>
+vnoremap g[ <esc>:call Wrap("【", "】")<cr>
 
 vnoremap <cr> y/<c-r>"<cr>
 

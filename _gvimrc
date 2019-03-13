@@ -1,5 +1,5 @@
 " ホームディレクトリ
-let $HOME='C:/vim'
+let $HOME='C:/Users/akamatsu-m/vim'
 
 " テーマ
 colorscheme evening
@@ -34,6 +34,14 @@ set nowrap
 set cursorline
 set scrolloff=2
 set textwidth=0
+set guioptions-=m "メニューバー
+set guioptions-=T "ツールバー
+set guioptions-=r "スクロールバー
+set guioptions-=R
+set guioptions-=l
+set guioptions-=L
+set guioptions-=b
+
 "set virtualedit=onemore
 set nolist
 set listchars=tab:>-,trail:-
@@ -478,17 +486,17 @@ function! Handler(channel, msg)
     call ch_close(w:ch)
 endfunction
 
-:autocmd FileType lisp noremap <C-F5> :!start clisp -i C:\vim\server.lisp<CR>:new repl.lisp<CR><C-W>x
-:autocmd FileType lisp nnoremap <silent> <C-F5> :call StartRepl()<cr>
-:autocmd FileType lisp nnoremap <silent> <c-cr> V<esc>:call Repl()<cr>
-:autocmd FileType lisp vnoremap <silent> <c-cr> <esc>`<V`><esc>:call Repl()<cr>
+autocmd FileType lisp noremap <C-F5> :!start clisp -i C:\vim\server.lisp<CR>:new repl.lisp<CR><C-W>x
+autocmd FileType lisp nnoremap <silent> <C-F5> :call StartRepl()<cr>
+autocmd FileType lisp nnoremap <silent> <c-cr> V<esc>:call Repl()<cr>
+autocmd FileType lisp vnoremap <silent> <c-cr> <esc>`<V`><esc>:call Repl()<cr>
 
 function! Repl()
     call ReplClient(GetSelectedString())
 endfunction
 
 function! StartRepl()
-    execute '!start clisp -i C:\vim\server.lisp'
+    execute '!start clisp -i '.$HOME.'/server.lisp'
     execute "vnew repl.lisp"
     execute "normal! \<c-w>x"
 endfunction

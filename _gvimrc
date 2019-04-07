@@ -17,14 +17,6 @@ set columns=100
 " ウインドウの高さ
 set lines=50
 
-" 各種バーの非表示
-set guioptions-=m
-set guioptions-=T
-set guioptions-=r
-set guioptions-=R
-set guioptions-=l
-set guioptions-=L
-
 " 自動生成ファイルを生成しない
 set noswapfile
 set nobackup

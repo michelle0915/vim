@@ -1,12 +1,13 @@
 " ホームディレクトリ
 let $HOME='C:/vim'
+set shellslash
 
 " テーマ
 colorscheme evening
 set encoding=utf-8
 set fileencodings=utf-8,cp932,sjis
-set guifont=HGGothicM:h12:b
-set guifontwide=HGGothicM:h12:b
+set guifont=HGGothicM:h14:b
+set guifontwide=HGGothicM:h14:b
 source $VIMRUNTIME/delmenu.vim
 set langmenu=ja_jp.utf-8
 source $VIMRUNTIME/menu.vim
@@ -15,6 +16,14 @@ source $VIMRUNTIME/menu.vim
 set columns=100
 " ウインドウの高さ
 set lines=50
+
+" 各種バーの非表示
+set guioptions-=m
+set guioptions-=T
+set guioptions-=r
+set guioptions-=R
+set guioptions-=l
+set guioptions-=L
 
 " 自動生成ファイルを生成しない
 set noswapfile
@@ -458,37 +467,11 @@ function! MultiLineCall(funcName, args)
     endfor
 endfunction
 
-function! ReplClient(string)
-    if !exists("w:ch") || ch_status(w:ch) != "open"
-        let w:ch = ch_open("localhost:9000", {"mode": "raw", "callback": "Handler"})
-    endif
+" 各種言語用設定
+source ~/lispsetting.vim
 
-    execute "normal! \<c-w>wG"
-    execute "normal! oIN>>> " . a:string . "\<esc>k$=%"
-
-    execute "normal! \<c-w>w"
-    call ch_sendraw(w:ch, a:string)
-endfunction
-
-function! Handler(channel, msg)
-    execute "normal! \<c-w>wG"
-    execute "normal! oOUT>>> " . a:msg . "\<esc>=%"
-
-    execute "normal! \<c-w>w"
-    call ch_close(w:ch)
-endfunction
-
-:autocmd FileType lisp noremap <C-F5> :!start clisp -i C:\vim\server.lisp<CR>:new repl.lisp<CR><C-W>x
-:autocmd FileType lisp nnoremap <silent> <C-F5> :call StartRepl()<cr>
-:autocmd FileType lisp nnoremap <silent> <c-cr> V<esc>:call Repl()<cr>
-:autocmd FileType lisp vnoremap <silent> <c-cr> <esc>`<V`><esc>:call Repl()<cr>
-
-function! Repl()
-    call ReplClient(GetSelectedString())
-endfunction
-
-function! StartRepl()
-    execute '!start clisp -i C:\vim\server.lisp'
-    execute "vnew repl.lisp"
-    execute "normal! \<c-w>x"
-endfunction
+" オムニ補完
+autocmd FileType *
+\   if &l:omnifunc == ''
+\ |   setlocal omnifunc=syntaxcomplete#Complete
+\ | endif

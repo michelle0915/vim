@@ -6,8 +6,8 @@ let $HOME='C:/Users/akamatsu-m/vim'
 colorscheme evening
 set encoding=utf-8
 set fileencodings=utf-8,cp932,sjis
-set guifont=HGGothicM:h14:b
-set guifontwide=HGGothicM:h14:b
+set guifont=HGGothicM:h12:b
+set guifontwide=HGGothicM:h12:b
 source $VIMRUNTIME/delmenu.vim
 set langmenu=ja_jp.utf-8
 source $VIMRUNTIME/menu.vim
@@ -41,7 +41,7 @@ set guioptions-=r "スクロールバー
 set guioptions-=R
 set guioptions-=l
 set guioptions-=L
-set guioptions-=b
+set guioptions+=b
 
 "set virtualedit=onemore
 set nolist
@@ -51,6 +51,7 @@ set listchars=tab:>-,trail:-
 set matchpairs+=<:>
 set matchpairs+=（:）
 set matchpairs+=【:】
+set matchpairs+=「:」
 
 " ビープ音を消す
 set vb t_vb=
@@ -72,7 +73,7 @@ nnoremap <silent> ,l :call ToggleSetting("list")<cr>
 nnoremap <silent> ,n :call ToggleSetting("number")<cr>
 nnoremap <silent> ,t :call ToggleSetting("expandtab")<cr>
 
-noremap <f1> :help 
+noremap <f1> :tabnew<cr>:help function-list<cr><c-w>w:q<cr>
 " vimrcを開く
 noremap <f2> :tabnew<cr>:e $home/_gvimrc<cr>
 
@@ -139,8 +140,7 @@ vnoremap { <esc>:call Wrap("{", "}")<cr>
 vnoremap < <esc>:call Wrap("<", ">")<cr>
 vnoremap " <esc>:call Wrap("\"", "\"")<cr>
 vnoremap ' <esc>:call Wrap("\'", "\'")<cr>
-vnoremap g( <esc>:call Wrap("（", "）")<cr>
-vnoremap g[ <esc>:call Wrap("【", "】")<cr>
+vnoremap s <esc>:call Wrap(" ", " ")<cr>
 
 vnoremap <cr> y/<c-r>"<cr>
 
@@ -304,12 +304,27 @@ function! GetSelectedString()
 endfunction
 
 " 指定の文字で選択範囲を囲む
-function! Wrap(pre, sur)
-    let tmp = @@
+function! Wrap(prefix, suffix)
 
-    execute "normal! gvc" . a:pre . "\<c-r>\"" . a:sur . "\<esc>"
+    execute "normal! `>"
+    execute "normal! a" . a:suffix . "\<esc>"
+    let sufline = line('.')
+    let suflength = strchars(a:suffix)
 
-    let @@ = tmp
+    execute "normal! `<"
+    execute "normal! i" . a:prefix . "\<esc>"
+    let prefline = line('.')
+    let preflength = strchars(a:prefix)
+    
+    let cursorshift = 0
+    if prefline == sufline
+        let cursorshift = preflength + suflength
+    else
+        let cursorshift = suflength
+    endif
+
+    execute "normal! `<v`>" . repeat('l', cursorshift)
+
 endfunction
 
 " カーソル位置の単語をハイライト（*の移動しない版）

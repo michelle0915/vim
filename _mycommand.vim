@@ -1,4 +1,4 @@
-:command! ReloadVimrc :source ~/_gvimrc
+:command! ReloadVimrc :source $VIM/_gvimrc
 :command! -nargs=1 RenameCurrentFile :call rename(expand('%'), '<args>')
 :command! -nargs=1 TagWrap normal cat<<args>></<args>><ESC>F>p
 :command! -nargs=+ CreateTag :call CreateTag(<f-args>) 
@@ -8,6 +8,7 @@
 :autocmd FileType php inoremap <C-CR> ."\n";
 :autocmd BufNewFile,BufRead *.tsv  noremap <C-F5> :call ShowMap("\t")<cr>
 :autocmd BufNewFile,BufRead *.csv  noremap <C-F5> :call ShowMap(",")<cr>
+:autocmd BufRead,BufNewFile *.nml set filetype=nml
 
 """"ASCII2NATIVE変換
 function! Ascii2Native()

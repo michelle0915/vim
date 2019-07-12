@@ -480,6 +480,30 @@ function! MultiLineCall(funcName, args)
     endfor
 endfunction
 
+" ある文字を基準に、縦のラインを揃える
+function! CharIndent(indexchar) range
+    let lnum = a:firstline
+    let maxidx = 0
+    while lnum <= a:lastline
+        let idx = match(getline(lnum), a:indexchar)
+        if idx > maxidx
+            let maxidx = idx
+        endif
+        let lnum = lnum + 1
+    endwhile
+
+    let lnum = a:firstline
+    while lnum <= a:lastline
+        let idx = match(getline(lnum), a:indexchar)
+        if idx > 0
+            let spacenum = maxidx - idx
+            let convertedline = substitute(getline(lnum), a:indexchar, repeat(" ", spacenum).a:indexchar, "")
+            call setline(lnum, convertedline)
+        endif
+        let lnum = lnum + 1
+    endwhile
+endfunction
+
 " 各種言語用設定
 source $VIM/lispsetting.vim
 

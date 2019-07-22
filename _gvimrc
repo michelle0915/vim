@@ -132,6 +132,7 @@ inoremap ' ''<left>
 
 inoremap {<cr> {}<left><cr><esc><s-o>
 
+let g:selectAfterWrap = 0
 vnoremap ( <esc>:call Wrap("(", ")")<cr>
 vnoremap [ <esc>:call Wrap("[", "]")<cr>
 vnoremap { <esc>:call Wrap("{", "}")<cr>
@@ -314,6 +315,11 @@ function! Wrap(prefix, suffix)
     let prefline = line('.')
     let preflength = strchars(a:prefix)
     
+    " 文字挿入後に範囲選択をするかどうか
+    if g:selectAfterWrap == 0
+        return
+    endif
+
     let cursorshift = 0
     if prefline == sufline
         let cursorshift = preflength + suflength

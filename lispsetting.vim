@@ -1,11 +1,10 @@
 autocmd FileType lisp :set lispwords-=if
 
 autocmd FileType lisp :inoremap ' '
-autocmd FileType lisp :noremap <c-F5> :!start clisp -i C:/vim/server.lisp<cr>:new repl.lisp<cr><c-w>x
 autocmd FileType lisp :nnoremap <silent> <c-F5> :call StartRepl()<cr>
 autocmd FileType lisp :nnoremap <silent> <c-cr> va(<esc>:call Repl()<cr>
 autocmd FileType lisp :vnoremap <silent> <c-cr> <esc>`<V`><esc>:call Repl()<cr>
-autocmd FileType lisp :command! Loadfile :call ReplClient('(load "'.expand('%:p').'")')
+autocmd FileType lisp :command! Loadfile :call LoadFile()
 
 autocmd FileType lisp :abbreviate dfp defparameter
 autocmd FileType lisp :abbreviate dfn defun
@@ -67,7 +66,7 @@ function! Handler(channel, msg)
 endfunction
 
 function! StartRepl()
-    execute '!start clisp -i '.$HOME.'/replserver.lisp'
+    execute '!start clisp -i '.$VIM.'/replserver.lisp'
     execute "vnew repl.lisp"
     execute "normal! \<c-w>x"
 endfunction

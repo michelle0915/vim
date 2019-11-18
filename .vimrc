@@ -1,6 +1,7 @@
 set shellslash
 
 " テーマ
+syntax on
 colorscheme molokai
 set encoding=utf-8
 set fileencodings=utf-8,cp932,sjis
@@ -30,13 +31,6 @@ set cursorline
 set cursorcolumn
 set scrolloff=2
 set textwidth=0
-"set guioptions-=m "メニューバー
-"set guioptions-=T "ツールバー
-"set guioptions-=r "スクロールバー
-"set guioptions-=R
-"set guioptions-=l
-"set guioptions-=L
-"set guioptions+=b
 
 set nolist
 set listchars=tab:>-,trail:-
@@ -59,7 +53,6 @@ nnoremap <leader>s :set
 nnoremap <leader>g :vimgrep  **/*<left><left><left><left><left>
 nnoremap <leader>l :ls<cr>
 nnoremap <leader>r :source ~/.vimrc<cr>
-nnoremap <silent> <leader>e :q<cr>
 nnoremap <leader>w :w<cr>
 nnoremap <leader>o :tabnew<cr>:e 
 nnoremap <silent> <leader>j :call JumpToPairTag()<cr>
@@ -81,7 +74,10 @@ nnoremap sp gT
 nnoremap sj <c-w>w
 
 " 基本操作キーマップ
+nnoremap <silent> <c-d> :q<cr>
 nnoremap <silent> <c-c> <esc>:nohlsearch<cr>
+nnoremap ; :
+nnoremap : ;
 noremap <c-z> <nop>
 noremap j gj
 noremap k gk
@@ -91,7 +87,7 @@ noremap <c-e> 2<c-e>
 noremap <c-y> 2<c-y>
 nnoremap <c-u> <c-r>
 noremap <c-j> /
-""noremap <silent> <c-k> "zyiw:let @/ = '\<' . @z . '\>'<cr>:set hlsearch<cr>
+"noremap <silent> <c-k> "zyiw:let @/ = '\<' . @z . '\>'<cr>:set hlsearch<cr>
 noremap <silent> <c-k> :call Highlight()<cr>:set hlsearch<cr>
 noremap <c-n> %
 noremap gy "*y
@@ -110,12 +106,6 @@ noremap <c-up> <c-b>
 noremap <c-down> <c-f>
 noremap <c-right> 3zl
 noremap <c-left> 3zh
-
-" マクロ
-noremap q <nop>
-noremap <f5> qa
-noremap <f6> q
-noremap <f8> @a
 
 " 入力中キーバインド
 inoremap <c-f> <right>
@@ -141,7 +131,7 @@ vnoremap " <esc>:call Wrap("\"", "\"")<cr>
 vnoremap ' <esc>:call Wrap("\'", "\'")<cr>
 vnoremap s <esc>:call Wrap(" ", " ")<cr>
 
-vnoremap <cr> y/<c-r>"<cr>
+vnoremap <c-j> y/<c-r>"<cr>
 
 " Quickfixフック
 autocmd QuickFixCmdPre vimgrep tabnew
@@ -157,47 +147,6 @@ autocmd QuickFixCmdPost vimgrep cwindow
 "let g:netrw_alto = 1
 
 noremap <F9> :tabnew<cr>:e .<cr>
-
-" ディレクトリ移動
-nnoremap <m-i> :call UpDirectory()<cr>
-nnoremap <m-u> :call BackToPrevDirectory()<cr>
-nnoremap <m-p> :pwd<cr>
-nnoremap <m-j> :cd 
-
-function! CreatePathHistory()
-    if !exists("w:pathHistory")
-        let w:pathHistory = []
-    endif
-endfunction
-
-function! PushPath()
-    call CreatePathHistory()
-    call add(w:pathHistory, getcwd())
-endfunction
-
-function! PopPath()
-    call CreatePathHistory()
-    let len = len(w:pathHistory)
-    if len > 0
-        return remove(w:pathHistory,  len - 1)
-    else
-        return -1
-    endif
-endfunction
-
-function! UpDirectory()
-    call PushPath()
-    execute "lcd .."
-    execute "pwd"
-endfunction
-
-function! BackToPrevDirectory()
-    let prev = PopPath()
-    if prev != -1
-        execute "lcd " . prev
-    endif
-    execute "pwd"
-endfunction
 
 " 最下ウィンドウにステータスバーを常に表示する
 set laststatus=2
@@ -511,7 +460,7 @@ function! CharIndent(indexchar) range
 endfunction
 
 " 各種言語用設定
-"source $VIM/lispsetting.vim
+source ~/.vim/lispsetting.vim
 
 " オムニ補完
 autocmd FileType *

@@ -1,9 +1,9 @@
 autocmd FileType lisp :set lispwords-=if
 
 autocmd FileType lisp :inoremap ' '
-autocmd FileType lisp :nnoremap <silent> <c-F5> :call StartRepl()<cr>
-autocmd FileType lisp :nnoremap <silent> <c-cr> va(<esc>:call Repl()<cr>
-autocmd FileType lisp :vnoremap <silent> <c-cr> <esc>`<V`><esc>:call Repl()<cr>
+autocmd FileType lisp :nnoremap <silent> <s-F5> :call StartRepl()<cr>
+autocmd FileType lisp :nnoremap <silent> <F5> va(<esc>:call Repl()<cr>
+autocmd FileType lisp :vnoremap <silent> <F5> <esc>`<v`><esc>:call Repl()<cr>
 autocmd FileType lisp :command! Loadfile :call LoadFile()
 
 autocmd FileType lisp :abbreviate dfp defparameter
@@ -23,7 +23,7 @@ function! ReplClient(string)
     endif
 
     let backflg = 0
-    if expand('%') == "repl.lisp"
+    if expand('%:t') == "repl.lisp"
         execute "normal! G"
     else
         execute "normal! \<c-w>wG"
@@ -32,7 +32,7 @@ function! ReplClient(string)
 
     "画面表示時、末尾の改行は除く
     let str = substitute(a:string, "\n$", "", "")
-    execute "normal! oIN>>> " . str . "\<esc>=%"
+    execute "normal! oIN >>> " . str . "\<esc>=%"
 
     if !backflg
         execute "normal! G"
@@ -47,7 +47,7 @@ endfunction
 
 function! Handler(channel, msg)
     let backflg = 0
-    if expand('%') == "repl.lisp"
+    if expand('%:t') == "repl.lisp"
         execute "normal! G"
     else
         execute "normal! \<c-w>wG"
@@ -66,8 +66,7 @@ function! Handler(channel, msg)
 endfunction
 
 function! StartRepl()
-    execute '!start clisp -i '.$VIM.'/replserver.lisp'
-    execute "vnew repl.lisp"
+    execute "vnew ~/repl.lisp"
     execute "normal! \<c-w>x"
 endfunction
 

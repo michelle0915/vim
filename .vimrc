@@ -31,6 +31,9 @@ set cursorline
 set cursorcolumn
 set scrolloff=2
 set textwidth=0
+"set clipboard+=autoselect
+set clipboard&
+set clipboard^=unnamedplus
 
 set nolist
 set listchars=tab:>-,trail:-
@@ -46,6 +49,30 @@ set matchpairs+=「:」
 
 " ビープ音を消す
 set vb t_vb=
+
+" 基本操作キーマップ
+nnoremap <silent> <c-d> :q<cr>
+nnoremap <silent> <c-c> <esc>:nohlsearch<cr>
+nnoremap ; :
+nnoremap : ;
+noremap <c-z> <nop>
+noremap j gj
+noremap k gk
+noremap <c-h> ^
+noremap <c-l> $
+noremap <c-e> 2<c-e>
+noremap <c-y> 2<c-y>
+nnoremap <c-u> <c-r>
+"noremap <silent> <c-k> "zyiw:let @/ = '\<' . @z . '\>'<cr>:set hlsearch<cr>
+noremap <silent> <c-k> :call Highlight()<cr>:set hlsearch<cr>
+noremap <c-n> %
+nnoremap <c-z> :stop<cr>
+
+"x でヤンクしない
+nnoremap x "_x
+vnoremap x "_x
+nnoremap X "_X
+vnoremap X "_X
 
 " leader
 let mapleader="\<space>"
@@ -73,27 +100,7 @@ nnoremap sn gt
 nnoremap sp gT
 nnoremap sj <c-w>w
 
-" 基本操作キーマップ
-nnoremap <silent> <c-d> :q<cr>
-nnoremap <silent> <c-c> <esc>:nohlsearch<cr>
-nnoremap ; :
-nnoremap : ;
-noremap <c-z> <nop>
-noremap j gj
-noremap k gk
-noremap <c-h> ^
-noremap <c-l> $
-noremap <c-e> 2<c-e>
-noremap <c-y> 2<c-y>
-nnoremap <c-u> <c-r>
-noremap <c-j> /
-"noremap <silent> <c-k> "zyiw:let @/ = '\<' . @z . '\>'<cr>:set hlsearch<cr>
-noremap <silent> <c-k> :call Highlight()<cr>:set hlsearch<cr>
-noremap <c-n> %
-noremap gy "*y
-noremap gp "*p
-nnoremap <c-z> :stop<cr>
-
+" 大文字・小文字変換
 nnoremap gu gUiw
 nnoremap gl guiw
 
@@ -120,7 +127,10 @@ inoremap { {}<left>
 inoremap " ""<left>
 inoremap ' ''<left>
 
-inoremap {<cr> {}<left><cr><esc><s-o>
+inoremap {<c-m> {}<left><cr><esc><s-o>
+inoremap [<c-m> []<left><cr><esc><s-o>
+autocmd FileType html :inoremap ><space> ><esc>:call AddEndTag()<cr>cit
+autocmd FileType html :inoremap >> ><esc>:call AddEndTag()<cr>cit<cr><esc><s-o>
 
 let g:selectAfterWrap = 0
 vnoremap ( <esc>:call Wrap("(", ")")<cr>
@@ -131,7 +141,7 @@ vnoremap " <esc>:call Wrap("\"", "\"")<cr>
 vnoremap ' <esc>:call Wrap("\'", "\'")<cr>
 vnoremap s <esc>:call Wrap(" ", " ")<cr>
 
-vnoremap <c-j> y/<c-r>"<cr>
+vnoremap / y/<c-r>"<cr>
 
 " Quickfixフック
 autocmd QuickFixCmdPre vimgrep tabnew
@@ -188,6 +198,27 @@ function! ToggleSetting(op)
         execute "set " . a:op
         echo "set " . a:op
     endif
+endfunction
+
+function! AddEndTag()
+    execute "normal! va<\<esc>"
+    let tagstring = GetSelectedString()
+    echo tagstring
+    " 終了タグまたは対のないタグの場合、なにもしない
+    if strcharpart(tagstring, 0, 2) == '</' || strcharpart(tagstring, strchars(tagstring) - 2) == '/>'
+        return
+    endif
+
+    " タグ名のみ取得
+    let tagname = strcharpart(tagstring, 1, strchars(tagstring) - 2)
+    " 属性値が設定されている場合
+    let spaceIndex = stridx(tagname, " ")
+    if (spaceIndex != -1)
+        let tagname = strpart(tagname, 0, spaceIndex)
+    endif
+
+    execute "normal! %a</".tagname.">"
+
 endfunction
 
 " 対となる開始・終了タグに移動する

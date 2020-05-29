@@ -54,7 +54,7 @@ function! Handler(channel, msg)
         let backflg = 1
     endif
 
-    execute "normal! oOUT>>> " . a:msg . "\<esc>=%"
+    execute "normal! oOUT>>> " . substitute(a:msg, '\n\s\+', '\n', 'g') . "\<esc>=%"
 
     if !backflg
         execute "normal! G"

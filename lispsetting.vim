@@ -1,16 +1,16 @@
 autocmd FileType lisp :set lispwords-=if
 
-autocmd FileType lisp :inoremap ' '
-autocmd FileType lisp :nnoremap <silent> <s-F5> :call StartRepl()<cr>
-autocmd FileType lisp :nnoremap <silent> <F5> va(<esc>:call Repl()<cr>
-autocmd FileType lisp :vnoremap <silent> <F5> <esc>`<v`><esc>:call Repl()<cr>
+autocmd FileType lisp :inoremap <buffer> ' '
+autocmd FileType lisp :nnoremap <buffer> <silent> <s-F5> :call StartRepl()<cr>
+autocmd FileType lisp :nnoremap <buffer> <silent> <F5> va(<esc>:call Repl()<cr>
+autocmd FileType lisp :vnoremap <buffer> <silent> <F5> <esc>`<v`><esc>:call Repl()<cr>
 autocmd FileType lisp :command! Loadfile :call LoadFile()
 
-autocmd FileType lisp :abbreviate dfp defparameter
-autocmd FileType lisp :abbreviate dfn defun
-autocmd FileType lisp :abbreviate dfm defmacro
-autocmd FileType lisp :abbreviate dfst defstruct
-autocmd FileType lisp :abbreviate lmd lambda
+autocmd FileType lisp :abbreviate <buffer> dfp defparameter
+autocmd FileType lisp :abbreviate <buffer> dfn defun
+autocmd FileType lisp :abbreviate <buffer> dfm defmacro
+autocmd FileType lisp :abbreviate <buffer> dfst defstruct
+autocmd FileType lisp :abbreviate <buffer> lmd lambda
 
 
 function! Repl()

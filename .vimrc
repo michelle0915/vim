@@ -42,10 +42,14 @@ set ignorecase
 set smartcase
 
 " 対応括弧のペアを追加
+set matchpairs&
 set matchpairs+=<:>
 set matchpairs+=（:）
 set matchpairs+=【:】
 set matchpairs+=「:」
+
+set iskeyword&
+set iskeyword+=-
 
 " ビープ音を消す
 set vb t_vb=
@@ -56,8 +60,10 @@ nnoremap <silent> <c-c> <esc>:nohlsearch<cr>
 nnoremap ; :
 nnoremap : ;
 noremap <c-z> <nop>
-noremap j gj
-noremap k gk
+nnoremap j gj
+xnoremap j gj
+nnoremap k gk
+xnoremap k gk
 noremap <c-h> ^
 noremap <c-l> $
 noremap <c-e> 2<c-e>
@@ -82,13 +88,12 @@ nnoremap <leader>l :ls<cr>
 nnoremap <leader>r :source ~/.vimrc<cr>
 nnoremap <leader>w :w<cr>
 nnoremap <leader>o :tabnew<cr>:e 
-nnoremap <silent> <leader>j :call JumpToPairTag()<cr>
 
 noremap , <nop>
-nnoremap <silent> ,w :call ToggleSetting("wrap")<cr>
-nnoremap <silent> ,l :call ToggleSetting("list")<cr>
-nnoremap <silent> ,n :call ToggleSetting("number")<cr>
-nnoremap <silent> ,t :call ToggleSetting("expandtab")<cr>
+nnoremap <silent> ,w :set wrap!<cr>
+nnoremap <silent> ,l :set list!<cr>
+nnoremap <silent> ,n :set number!<cr>
+nnoremap <silent> ,t :set expandtab!<cr>
 
 noremap <f1> :tabnew<cr>:help function-list<cr><c-w>w:q<cr>
 " vimrcを開く
@@ -127,10 +132,8 @@ inoremap { {}<left>
 inoremap " ""<left>
 inoremap ' ''<left>
 
-inoremap {<c-m> {}<left><cr><esc><s-o>
-inoremap [<c-m> []<left><cr><esc><s-o>
-autocmd FileType html :inoremap ><space> ><esc>:call AddEndTag()<cr>cit
-autocmd FileType html :inoremap >> ><esc>:call AddEndTag()<cr>cit<cr><esc><s-o>
+inoremap {<cr> {}<left><cr><esc><s-o>
+inoremap [<cr> []<left><cr><esc><s-o>
 
 let g:selectAfterWrap = 0
 vnoremap ( <esc>:call Wrap("(", ")")<cr>
@@ -151,7 +154,11 @@ autocmd QuickFixCmdPost vimgrep cwindow
 ":source $VIM/_mycommand.vim
 
 " netrw.vim設定
-"let g:netrw_liststyle = 3
+let g:netrw_banner=0
+let g:netrw_liststyle=3
+let g:netrw_timefmt="%Y/%m/%d(%a) %H:%M:%S"
+let g:netrw_winsize=30
+let g:netrw_preview=1
 "let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+'
 "let g:netrw_altv = 1
 "let g:netrw_alto = 1
@@ -189,65 +196,16 @@ function! GetFileFormat()
     endif
 endfunction
 
-" オプションのON/OFF切替え
-function! ToggleSetting(op)
-    if eval("&" . a:op)
-        execute "set no" . a:op
-        echo "set no" . a:op
-    else
-        execute "set " . a:op
-        echo "set " . a:op
-    endif
-endfunction
+" 選択範囲の文字列を取得
+function! GetSelectedString()
 
-function! AddEndTag()
-    execute "normal! va<\<esc>"
-    let tagstring = GetSelectedString()
-    echo tagstring
-    " 終了タグまたは対のないタグの場合、なにもしない
-    if strcharpart(tagstring, 0, 2) == '</' || strcharpart(tagstring, strchars(tagstring) - 2) == '/>'
-        return
-    endif
+    let ret = ""
+    let tmp = @@
+    execute "normal! gvy"
+    let ret = @@
+    let @@ = tmp
 
-    " タグ名のみ取得
-    let tagname = strcharpart(tagstring, 1, strchars(tagstring) - 2)
-    " 属性値が設定されている場合
-    let spaceIndex = stridx(tagname, " ")
-    if (spaceIndex != -1)
-        let tagname = strpart(tagname, 0, spaceIndex)
-    endif
-
-    execute "normal! %a</".tagname.">"
-
-endfunction
-
-" 対となる開始・終了タグに移動する
-function! JumpToPairTag()
-    " カーソル位置の括弧を含むタグ文字列を取得（マルチバイト文字も考慮して、以後扱う）
-    execute "normal! va<\<esc>"
-    let tagstring = GetSelectedString()
-
-    " 対のないタグの場合、なにもしない
-    if strcharpart(tagstring, strchars(tagstring) - 2) == '/>'
-        return
-    endif
-
-    " タグ名のみ取得
-    let tagname = strcharpart(tagstring, 1, strchars(tagstring) - 2)
-    " 属性値が設定されている場合
-    let spaceIndex = stridx(tagname, " ")
-    if (spaceIndex != -1)
-        let tagname = strpart(tagname, 0, spaceIndex)
-    endif
-
-    " 開始/終了タグに応じて下/上検索
-    if tagname[0] != '/'
-        let res = searchpair('<'.tagname.'.\{-}>', '', '</'.tagname.'>', 'W')
-    else
-        let tagname = tagname[1:]
-        let res = searchpair('<'.tagname.'.\{-}>', '', '</'.tagname.'>', 'bW')
-    endif
-
+    return ret
 endfunction
 
 " 25%/75%の位置に移動できる
@@ -268,18 +226,6 @@ function! ThreeQuarter(pos)
     else
         execute "normal! " . rowML . "G"
     endif
-endfunction
-
-" 選択範囲の文字列を取得
-function! GetSelectedString()
-
-    let ret = ""
-    let tmp = @@
-    execute "normal! gvy"
-    let ret = @@
-    let @@ = tmp
-
-    return ret
 endfunction
 
 " 指定の文字で選択範囲を囲む
@@ -361,19 +307,6 @@ function! FiletypeCommentStr()
         return '#'
     endif
 endfunction
-
-"let filetypeCommentStr = ""
-"augroup fileTypeComment
-"    autocmd!
-"    autocmd BufNewFile,BufRead *.vim,*vimrc let filetypeCommentStr = '"'
-"    autocmd BufNewFile,BufRead *.lisp let filetypeCommentStr = ';'
-"    autocmd BufNewFile,BufRead *.c,*.cpp let filetypeCommentStr = '//'
-"    autocmd BufNewFile,BufRead *.js let filetypeCommentStr = '//'
-"    autocmd BufNewFile,BufRead *.java let filetypeCommentStr = '//'
-"    autocmd BufNewFile,BufRead *.php let filetypeCommentStr = '//'
-"    autocmd BufNewFile,BufRead *.pl let filetypeCommentStr = '#'
-"    autocmd BufNewFile,BufRead *.py let filetypeCommentStr = '#'
-"augroup END
 
 nnoremap <silent> - :call CommentOut(FiletypeCommentStr())<cr>
 nnoremap <silent> + :call UnCommentOut(FiletypeCommentStr())<cr>
@@ -492,12 +425,13 @@ endfunction
 
 " 各種言語用設定
 source ~/.vim/lispsetting.vim
+autocmd FileType vue :setlocal filetype=html
 
 " オムニ補完
-autocmd FileType *
-\   if &l:omnifunc == ''
-\ |   setlocal omnifunc=syntaxcomplete#Complete
-\ | endif
+"autocmd FileType *
+"\   if &l:omnifunc == ''
+"\ |   setlocal omnifunc=syntaxcomplete#Complete
+"\ | endif
 
 if has('vim_starting')
     " 挿入モード時に非点滅の縦棒タイプのカーソル
@@ -527,3 +461,8 @@ function! Execute_ctags() abort
     let tags_dirpath = fnamemodify(tags_path, ':p:h')
     execute 'silent !cd ' . tags_dirpath . ' && ctags -R -f ' . tag_name . ' 2> /dev/null &'
 endfunction
+
+augroup vimrc_auto_reload
+    autocmd!
+    autocmd BufWritePost *.vim,*vimrc source ~/.vimrc
+augroup END

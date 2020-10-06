@@ -424,7 +424,6 @@ function! CharIndent(indexchar) range
 endfunction
 
 " 各種言語用設定
-source ~/.vim/lispsetting.vim
 autocmd FileType vue :setlocal filetype=html
 
 " オムニ補完
